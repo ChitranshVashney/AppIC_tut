@@ -1,4 +1,4 @@
-# autoInvest Project - Smart Contract Documentation
+# autoInvest Project - Canister Documentation
 
 This document outlines the functionalities implemented in the autoInvest smart contract deployed on the Internet Computer. The contract facilitates the management of positions related to token swaps, using a TrieMap data structure for efficient storage and retrieval.
 
