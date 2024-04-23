@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "AppIC_tut_backend": {
+      "main": "src/AppIC_tut_backend/main.mo",
+      "type": "motoko"
+    },
+    "AppIC_tut_frontend": {
+      "dependencies": [
+        "AppIC_tut_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/AppIC_tut_frontend/src/index.html"
+      },
+      "source": [
+        "src/AppIC_tut_frontend/assets",
+        "dist/AppIC_tut_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
