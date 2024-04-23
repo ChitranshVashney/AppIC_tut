@@ -1,60 +1,83 @@
-# AppIC_tut
+# autoInvest Project - Smart Contract Documentation
 
-Welcome to your new AppIC_tut project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+This document outlines the functionalities implemented in the autoInvest smart contract deployed on the Internet Computer. The contract facilitates the management of positions related to token swaps, using a TrieMap data structure for efficient storage and retrieval.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Data Structures
 
-To learn more before you start working with AppIC_tut, see the following documentation available online:
+### SwapStatus
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/quickstart/hello10mins)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove)
-- [Motoko Programming Language Guide](https://internetcomputer.org/docs/current/developer-docs/build/cdks/motoko-dfinity/motoko/)
-- [Motoko Language Quick Reference](https://internetcomputer.org/docs/current/references/motoko-ref/)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.icp0.io)
+Represents the status of a token swap.
 
-If you want to start working on your project right away, you might want to try the following commands:
+- **Successful**: Indicates that the swap was completed successfully.
+- **Failed**: Indicates that the swap failed to complete.
 
-```bash
-cd AppIC_tut/
-dfx help
-dfx canister --help
+### Swap
+
+Stores details about a token swap operation.
+
+- **swapTime** (`Nat`): The timestamp when the swap was initiated.
+- **swapStatus** (`SwapStatus`): The status of the swap, either `Successful` or `Failed`.
+
+### Position
+
+Represents a trading position involving token swaps.
+
+- **sellToken** (`Principal`): The principal ID of the token being sold.
+- **buyToken** (`Principal`): The principal ID of the token being bought.
+- **sellAmount** (`Nat`): The amount of the sellToken being offered.
+- **swaps** (`Swap`): The swap details associated with this position.
+
+## Functions
+
+### createPosition
+
+Creates a new position and stores it in the TrieMap.
+
+- **Parameters**:
+  - `sellToken` (`Principal`): The principal ID of the sell token.
+  - `buyToken` (`Principal`): The principal ID of the buy token.
+  - `sellAmount` (`Nat`): The amount of the sell token.
+  - `swapTime` (`Nat`): The time when the swap was initiated.
+- **Returns**: `Nat`
+  - Returns the unique identifier (`positionId`) of the newly created position.
+- **Errors**:
+  - None explicitly thrown, but incorrect types in parameters will prevent compilation.
+
+### editPosition
+
+Updates an existing position with new values.
+
+- **Parameters**:
+  - `positionId` (`Nat`): The identifier of the position to update.
+  - `newSellToken` (`Principal`): Updated principal ID of the sell token.
+  - `newBuyToken` (`Principal`): Updated principal ID of the buy token.
+  - `newSellAmount` (`Nat`): Updated amount of the sell token.
+  - `newSwapTime` (`Nat`): Updated time when the swap was initiated.
+- **Returns**: `Bool`
+  - Returns `true` if the position was successfully updated, `false` if the position does not exist.
+- **Errors**:
+  - No position found with the given `positionId`.
+
+### deletePosition
+
+Removes a position from the TrieMap.
+
+- **Parameters**:
+  - `positionId` (`Nat`): The identifier of the position to delete.
+- **Returns**: `Bool`
+  - Returns `true` if the position was successfully removed, `false` if the position does not exist.
+- **Errors**:
+  - No position found with the given `positionId`.
+
+## Usage Example
+
+```shell
+# Create a new position
+dfx canister call autoInvest createPosition '(principal "aaaaa-aa", principal "bbbbb-bb", 1000, 1618033988)'
+
+# Edit an existing position
+dfx canister call autoInvest editPosition '(0, principal "ccccc-cc", principal "ddddd-dd", 1500, 1618033999)'
+
+# Delete a position
+dfx canister call autoInvest deletePosition '(0)'
 ```
-
-## Running the project locally
-
-If you want to test your project locally, you can use the following commands:
-
-```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
-```
-
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
-
-If you have made changes to your backend canister, you can generate a new candid interface with
-
-```bash
-npm run generate
-```
-
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
-
-If you are making frontend changes, you can start a development server with
-
-```bash
-npm start
-```
-
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
-
-### Note on frontend environment variables
-
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
-
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
